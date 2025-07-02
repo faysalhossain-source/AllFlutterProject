@@ -1,11 +1,31 @@
+class CompanyDto {
+  final String name;
+  final String phone;
 
-// job.dart
-import '../DTO/dto.dart';
+  CompanyDto({
+    required this.name,
+    required this.phone,
+  });
 
-class Job {
+  factory CompanyDto.fromJson(Map<String, dynamic> json) {
+    return CompanyDto(
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'phone': phone,
+    };
+  }
+}
+
+class JobDto {
   final int id;
   final String jobTitle;
-  final CompanyDto company; // Nested CompanyDto object
+  final CompanyDto company;
   final String jobDescription;
   final String jobRequirement;
   final String jobResponsibilities;
@@ -13,9 +33,9 @@ class Job {
   final String workPlace;
   final String employmentStatus;
   final String jobLocation;
-  final DateTime createdAt; // String from DateTime
+  final DateTime createdAt;
 
-  Job({
+  JobDto({
     required this.id,
     required this.jobTitle,
     required this.company,
@@ -29,12 +49,11 @@ class Job {
     required this.createdAt,
   });
 
-
-  factory Job.fromJson(Map<String, dynamic> json) {
-    return Job(
+  factory JobDto.fromJson(Map<String, dynamic> json) {
+    return JobDto(
       id: json['id'] as int,
       jobTitle: json['jobTitle'] as String,
-      company: CompanyDto.fromJson(json['company'] as Map<String, dynamic>), // nested object parsing
+      company: CompanyDto.fromJson(json['company'] as Map<String, dynamic>),
       jobDescription: json['jobDescription'] as String,
       jobRequirement: json['jobRequirement'] as String,
       jobResponsibilities: json['jobResponsibilities'] as String,
@@ -42,17 +61,15 @@ class Job {
       workPlace: json['workPlace'] as String,
       employmentStatus: json['employmentStatus'] as String,
       jobLocation: json['jobLocation'] as String,
-      // String from DateTime
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'jobTitle': jobTitle,
-      'company': company.toJson(), // nested object to JSON
+      'company': company.toJson(),
       'jobDescription': jobDescription,
       'jobRequirement': jobRequirement,
       'jobResponsibilities': jobResponsibilities,
@@ -60,7 +77,7 @@ class Job {
       'workPlace': workPlace,
       'employmentStatus': employmentStatus,
       'jobLocation': jobLocation,
-      'createdAt': createdAt.toIso8601String(), // DateTime from String
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 }
