@@ -152,7 +152,7 @@ class _JobPortalDashboardState extends State<JobPortalDashboard> {
         unselectedItemColor: Colors.grey,
         onTap: onTabTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_alt), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Jobs'), // This tab will show JobListingScreen
           BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
         ],
@@ -246,7 +246,7 @@ class _DashboardHomeContentState extends State<_DashboardHomeContent> {
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Welcome to your Job Portal Dashboard!',
+              'Welcome to you in Job Portal',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),

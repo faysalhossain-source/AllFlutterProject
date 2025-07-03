@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/job.dart';
+import '../model/seeker_profile.dart';
+import '../screen/seeker_profile.dart' hide SeekerProfile;
 
 
 
 class ApiService {
-  final String _baseUrl = 'http://10.0.2.2:8081';
+  // final String _baseUrl = 'http://10.0.2.2:8081';
+  final String _baseUrl = 'http://192.168.0.78:8081';
 
   Future<int?> _getSeekerId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -23,7 +27,7 @@ class ApiService {
     }
   }
 
-  Future<Job> getMyProfileInfo() async {
+  Future<SeekerProfile> getMyProfileInfo() async {
     final seekerId = await _getSeekerId();
     if (seekerId == null) {
       throw Exception('Seeker ID not found in local storage.');
@@ -132,5 +136,6 @@ class ApiService {
     }
   }
 }
+
 
 

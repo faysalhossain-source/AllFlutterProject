@@ -5,7 +5,7 @@ import '../DTO/dto.dart';
 class Job {
   final int id;
   final String jobTitle;
-  final CompanyDto company; // Nested CompanyDto object
+  final CompanyDto company;
   final String jobDescription;
   final String jobRequirement;
   final String jobResponsibilities;
@@ -13,7 +13,7 @@ class Job {
   final String workPlace;
   final String employmentStatus;
   final String jobLocation;
-  final DateTime createdAt; // String from DateTime
+  final DateTime createdAt;
 
   Job({
     required this.id,
@@ -60,7 +60,7 @@ class Job {
       'workPlace': workPlace,
       'employmentStatus': employmentStatus,
       'jobLocation': jobLocation,
-      'createdAt': createdAt.toIso8601String(), // DateTime from String
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 }

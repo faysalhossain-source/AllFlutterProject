@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jobportal/screen/dashboard_screen.dart';
+import 'package:jobportal/screen/login_screen.dart';
 
 
 void main() {
@@ -12,12 +13,20 @@ class MyJobPortalApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // debug banner for leaving
       title: 'My Job Portal',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.deepPurple,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const JobPortalDashboard(),
+      home: const LoginScreen(),
+      routes: {
+
+        '/register-company': (context) => const RegisterCompanyScreen(),
+        '/register-seeker': (context) => const RegisterSeekerScreen(),
+        // if go in dashboard rootly so add this
+        '/dashboard': (context) => const JobPortalDashboard(),
+      },
     );
   }
 }
