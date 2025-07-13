@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Models/job_model.dart';
 
 class JobHomePage extends StatefulWidget {
@@ -17,15 +18,19 @@ class _JobHomePageState extends State<JobHomePage> {
   int _selectedIndex = 0;
   bool isLoading = true;
 
+  // ✅ Profile Info
+  String? name, email, imageUrl;
+
   @override
   void initState() {
     super.initState();
     fetchJobs();
+    loadProfileInfo(); // Load name, email, image
   }
 
   @override
   void dispose() {
-    _scrollController.dispose(); // avoid memory leak
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -49,6 +54,15 @@ class _JobHomePageState extends State<JobHomePage> {
     }
   }
 
+  Future<void> loadProfileInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name');
+      email = prefs.getString('email');
+      imageUrl = prefs.getString('imageUrl'); // Optional
+    });
+  }
+
   void _onBottomNavTap(int index) {
     setState(() => _selectedIndex = index);
     if (index == 1) Navigator.pushNamed(context, '/applied');
@@ -62,47 +76,70 @@ class _JobHomePageState extends State<JobHomePage> {
 
     return Scaffold(
       backgroundColor: Colors.pink.shade50,
-      appBar: AppBar(
-        backgroundColor: Colors.purple,
-        elevation: 0,
-        toolbarHeight: 100,
-        flexibleSpace: Padding(
-          padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
-          child: Row(
-            children: [
-              CircleAvatar(radius: 24),
-              SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  onChanged: (value) => setState(() => searchQuery = value),
-                  decoration: InputDecoration(
-                    hintText: 'Search Jobs',
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.search),
-                    contentPadding: EdgeInsets.symmetric(vertical: 0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(130),
+        child: AppBar(
+          backgroundColor: Colors.purple,
+          elevation: 0,
+          flexibleSpace: Padding(
+            padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
+                      ? NetworkImage(imageUrl!)
+                      : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(name ?? 'Guest',
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(email ?? '',
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.wallet, color: Colors.white),
+                const SizedBox(width: 10),
+                const Icon(Icons.notifications_none, color: Colors.white),
+                const SizedBox(width: 10),
+                const Icon(Icons.mail_outline, color: Colors.white),
+              ],
+            ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(60),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TextField(
+                onChanged: (value) => setState(() => searchQuery = value),
+                decoration: InputDecoration(
+                  hintText: 'Search Jobs',
+                  filled: true,
+                  fillColor: Colors.white,
+                  prefixIcon: const Icon(Icons.search),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-              SizedBox(width: 10),
-              Icon(Icons.wallet, color: Colors.white),
-              SizedBox(width: 10),
-              Icon(Icons.notifications_none, color: Colors.white),
-              SizedBox(width: 10),
-              Icon(Icons.mail_outline, color: Colors.white),
-            ],
+            ),
           ),
         ),
       ),
-
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : filteredJobs.isEmpty
-          ? Center(child: Text('No jobs found'))
+          ? const Center(child: Text('No jobs found'))
           : LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -114,8 +151,8 @@ class _JobHomePageState extends State<JobHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       child: Text(
                         "Find Your Dream Job Today!",
                         style: TextStyle(
@@ -125,17 +162,15 @@ class _JobHomePageState extends State<JobHomePage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text("Recommended Jobs",
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.purple)),
                     ),
-                    SizedBox(height: 10),
-
+                    const SizedBox(height: 10),
                     ...filteredJobs.map((job) => _jobCard(job)).toList(),
                   ],
                 ),
@@ -144,7 +179,6 @@ class _JobHomePageState extends State<JobHomePage> {
           );
         },
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onBottomNavTap,
@@ -160,33 +194,32 @@ class _JobHomePageState extends State<JobHomePage> {
     );
   }
 
-  /// Job Card Design
   Widget _jobCard(Job job) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(job.jobTitle,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-            SizedBox(height: 8),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+            const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.business, size: 20, color: Colors.grey[700]),
-                SizedBox(width: 6),
-                Text(job.company.name, style: TextStyle(fontSize: 16)),
+                const Icon(Icons.business, size: 20, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(job.company.name, style: const TextStyle(fontSize: 16)),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 10,
               children: [
                 Chip(
-                  label: Text(job.employmentStatus, style: TextStyle(color: Colors.white)),
+                  label: Text(job.employmentStatus, style: const TextStyle(color: Colors.white)),
                   backgroundColor: Colors.green,
                 ),
                 Chip(
@@ -195,38 +228,75 @@ class _JobHomePageState extends State<JobHomePage> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.red, size: 20),
-                SizedBox(width: 6),
+                const Icon(Icons.location_on, color: Colors.red, size: 20),
+                const SizedBox(width: 6),
                 Text(job.jobLocation),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text("📝 Description", style: _sectionTitleStyle()),
             Text(job.jobDescription, style: _bodyTextStyle()),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text("📌 Requirement", style: _sectionTitleStyle()),
             Text(job.jobRequirement, style: _bodyTextStyle()),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text("💼 Responsibilities", style: _sectionTitleStyle()),
             Text(job.jobResponsibilities, style: _bodyTextStyle()),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text("💰 Compensation & Benefits", style: _sectionTitleStyle()),
             Text(job.compensationBenefit, style: _bodyTextStyle()),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text("📅 Posted On: ${job.createdAt.toLocal().toString().split(' ')[0]}",
                 style: TextStyle(color: Colors.grey[700])),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/apply', arguments: job.id);
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String? token = prefs.getString('jwt_token');
+                  String? seekerId = prefs.getString('id');
+
+                  if (token == null || seekerId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('You are not logged in.')),
+                    );
+                    return;
+                  }
+
+                  try {
+                    final response = await http.post(
+                      Uri.parse('http://10.0.2.2:8081/api/seeker/apply/job'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer $token',
+                      },
+                      body: jsonEncode({
+                        'jobId': job.id,
+                        'seekerId': int.parse(seekerId),
+                      }),
+                    );
+
+                    if (response.statusCode == 200 || response.statusCode == 201) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Application submitted successfully!')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: ${response.body}')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error occurred: $e')),
+                    );
+                  }
                 },
-                icon: Icon(Icons.send),
-                label: Text('Apply Now'),
+                icon: const Icon(Icons.send),
+                label: const Text('Apply Now'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.lightBlue),
               ),
             ),
@@ -237,10 +307,10 @@ class _JobHomePageState extends State<JobHomePage> {
   }
 
   TextStyle _sectionTitleStyle() {
-    return TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.purple);
+    return const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.purple);
   }
 
   TextStyle _bodyTextStyle() {
-    return TextStyle(fontSize: 14, color: Colors.black87, height: 1.4);
+    return const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4);
   }
 }

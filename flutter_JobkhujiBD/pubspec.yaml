@@ -6,25 +6,25 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: ^3.8.1 # আপনার Flutter SDK ভার্সন
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  http: ^1.4.0
-  path: ^1.9.1
-  intl: ^0.20.2
-  shared_preferences: ^2.5.3
-  scroll_to_index: ^3.0.1
+  cupertino_icons: ^1.0.8 # সাধারণত ব্যবহৃত হয়, তাই রাখা হলো
+  http: ^1.4.0 # API কল করার জন্য ব্যবহৃত হচ্ছে
+  intl: ^0.20.2 # তারিখ ফরম্যাট করার জন্য ব্যবহৃত হচ্ছে
+  shared_preferences: ^2.5.3 # লোকাল স্টোরেজে ডেটা সেভ করার জন্য ব্যবহৃত হচ্ছে
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^5.0.0 # কোড স্টাইল এবং লিন্টিং এর জন্য
 
 flutter:
   uses-material-design: true
-
 #  assets:
-#    - assets/seeker.png
+#    - assets/login_logo.png # যদি AppBar এ লোগো ব্যবহার করেন
+#    - assets/google_logo.png
+#    - assets/facebook_logo.png
+    # - assets/login_top_shape.png # যদি কাস্টম শেপ ইমেজ ব্যবহার করেন

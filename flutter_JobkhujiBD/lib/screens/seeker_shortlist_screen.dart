@@ -31,7 +31,7 @@ class _SeekerShortlistScreenState extends State<SeekerShortlistScreen> {
 
     try {
       final fetchedJobsDynamic =
-      await _seekerService.getShortlistMyAppliedJob(jobs as int);
+      await _seekerService.getShortlistMyAppliedJob();
 
       final List<JobShortlist> fetchedJobs = fetchedJobsDynamic
           .map((jobJson) => JobShortlist.fromJson(jobJson))

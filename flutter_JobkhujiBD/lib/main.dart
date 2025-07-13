@@ -1,15 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jobkhujibd/screens/LoginScreen.dart';
 import 'package:flutter_jobkhujibd/screens/jobseeker_screen/JobHomePage.dart';
-import 'package:flutter_jobkhujibd/screens/jobseeker_screen/SeekerApplyScreen.dart';
+import 'package:flutter_jobkhujibd/screens/jobseeker_screen/SeekerAppliedJobScreen.dart';
 import 'package:flutter_jobkhujibd/screens/seeker_shortlist_screen.dart';
+// import 'package:flutter_jobkhujibd/screens/register/RegisterCompanyPage.dart';
+// import 'package:flutter_jobkhujibd/screens/register/RegisterSeekerPage.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,12 +25,13 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
-        '/': (context) => JobHomePage(),
-        '/applied': (context) => SeekerApplyScreen(),
-        '/shortlist': (context) => SeekerShortlistScreen(),
-        '/login': (context) => const LoginPage(),
-        ///'/register-company': (context) => const RegisterCompanyPage(),
-        ///'/register-seeker': (context) => const RegisterSeekerPage(),
+        '/': (context) => const JobHomePage(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const JobHomePage(),
+        '/applied': (context) => const SeekerAppliedJobScreen(),
+        '/shortlist': (context) => const SeekerShortlistScreen(),
+        // '/register-company': (context) => const RegisterCompanyPage(),
+        // '/register-seeker': (context) => const RegisterSeekerPage(),
       },
     );
   }

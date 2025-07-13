@@ -1,176 +1,233 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_jobkhujibd/services/seeker_service.dart';
+
+import 'package:http/http.dart' as http;
+
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+
+
+class LoginScreen extends StatefulWidget {
+
+  const LoginScreen({super.key});
+
+
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+
+  State<LoginScreen> createState() => _LoginScreenState();
+
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final SeekerService _seekerService = SeekerService();
 
-  bool _isLoading = false;
-  String? _errorMessage;
 
-  Future<void> _onLogin() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+class _LoginScreenState extends State<LoginScreen> {
 
-      final response = await _seekerService.login(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+  final TextEditingController emailController = TextEditingController();
+
+  final TextEditingController passwordController = TextEditingController();
+
+
+
+  bool isLoading = false;
+
+
+
+  Future<void> loginUser() async {
+
+    setState(() {
+
+      isLoading = true;
+
+    });
+
+
+
+    final email = emailController.text.trim();
+
+    final password = passwordController.text;
+
+
+
+    if (email.isEmpty || password.isEmpty) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        SnackBar(content: Text('Please enter email and password')),
+
       );
 
-      if (response.containsKey('token') && response.containsKey('id')) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('id', response['id'].toString());
-        await prefs.setString('token', response['token']);
-        await prefs.setString('role', response['role']?.toString() ?? '');
+      setState(() {
 
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/'); // Go to home/dashboard
+        isLoading = false;
+
+      });
+
+      return;
+
+    }
+
+
+
+    try {
+
+      final response = await http.post(
+
+        Uri.parse('http://10.0.2.2:8081/api/auth/login'),
+
+        headers: {'Content-Type': 'application/json'},
+
+        body: jsonEncode({'email': email, 'password': password}),
+
+      );
+
+
+
+      if (response.statusCode == 200) {
+
+        final data = jsonDecode(response.body);
+
+
+
+        final token = data['token']; // Adjust key according to your backend response
+
+        if (token != null) {
+
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+
+          await prefs.setString('jwt_token', token);
+
+
+
+          ScaffoldMessenger.of(context).showSnackBar(
+
+            SnackBar(content: Text('Login successful!')),
+
+          );
+
+
+
+// Navigate to home page or main app screen
+
+          Navigator.pushReplacementNamed(context, '/home');
+
+        } else {
+
+          ScaffoldMessenger.of(context).showSnackBar(
+
+            SnackBar(content: Text('Invalid token received')),
+
+          );
+
+        }
+
       } else {
-        setState(() {
-          _errorMessage = response['message'] ?? 'Login failed';
-        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+
+          SnackBar(content: Text('Login failed: ${response.statusCode}')),
+
+        );
+
       }
 
+    } catch (e) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        SnackBar(content: Text('Error occurred: $e')),
+
+      );
+
+    } finally {
+
       setState(() {
-        _isLoading = false;
+
+        isLoading = false;
+
       });
+
     }
+
   }
 
+
+
   @override
+
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+
+    emailController.dispose();
+
+    passwordController.dispose();
+
     super.dispose();
+
   }
 
+
+
   @override
+
   Widget build(BuildContext context) {
+
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Login',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 24),
-                    if (_errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email address',
-                        hintText: 'example@domain.com',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Email is required';
-                        }
-                        final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'At least 6 characters',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Password is required';
-                        }
-                        if (value.length < 6) {
-                          return 'Minimum 6 characters required';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _onLogin,
-                        child: _isLoading
-                            ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                            : const Text('Login'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text("Don't have an account?"),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/register-company');
-                          },
-                          child: const Text('Register as Company'),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/register-seeker');
-                          },
-                          child: const Text('Register as Job Seeker'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+
+      appBar: AppBar(title: Text('Login')),
+
+      body: Padding(
+
+        padding: EdgeInsets.all(16),
+
+        child: Column(
+
+          children: [
+
+            TextField(
+
+              controller: emailController,
+
+              keyboardType: TextInputType.emailAddress,
+
+              decoration: InputDecoration(labelText: 'Email'),
+
             ),
-          ),
+
+            SizedBox(height: 12),
+
+            TextField(
+
+              controller: passwordController,
+
+              obscureText: true,
+
+              decoration: InputDecoration(labelText: 'Password'),
+
+            ),
+
+            SizedBox(height: 24),
+
+            isLoading
+
+                ? CircularProgressIndicator()
+
+                : ElevatedButton(
+
+              onPressed: loginUser,
+
+              child: Text('Login'),
+
+            ),
+
+          ],
+
         ),
+
       ),
+
     );
+
   }
+
 }
