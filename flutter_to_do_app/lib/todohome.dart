@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_to_do_app/StudentListPage.dart';
 
 class Todohome extends StatefulWidget {
   const Todohome({super.key});
@@ -29,6 +30,61 @@ class _TodohomeState extends State<Todohome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: NetworkImage(
+                      'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  const Text(
+                    'Manu',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('HOME'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.business),
+              title: Text('BUSINESS'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.school),
+              title: Text('STUDENT LIST'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Studentlistpage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: const Text(
           'To-Do-List',
