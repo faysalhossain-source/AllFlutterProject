@@ -104,6 +104,7 @@ class HomePage extends StatelessWidget {
         selectedColor: Colors.blue,
         backgroundColor: Colors.grey[200],
         onSelected: (_) => controller.changeCategory(label),
+        showCheckmark: false,
       );
     });
   }

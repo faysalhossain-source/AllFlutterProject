@@ -6,7 +6,6 @@ class HomeController extends GetxController {
   var selectedCategory =
       "House".obs; //Category selection (House, Apartment, Hotel, Villa)
 
-  // Category change method
   void changeCategory(String category) {
     selectedCategory.value = category;
   }
